@@ -14,8 +14,8 @@ export default function Input(props) {
     return (
         <input 
             type="text" 
-            styke={estilo}
-            {...props} />
+            style={estilo}
+            {...propriedades} />
     );
 
 }
