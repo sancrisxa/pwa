@@ -1,16 +1,16 @@
-import React from 'react';
-import Label from '../Label';
-import Input from '../Input';
-import GenderImage from '../GenderSelector';
-import GenderSelector from '../GenderSelector';
-import Usuario from '../../models/Usuario';
-import Button from '../Button';
+import React from 'react'
+import Label from '../Label'
+import Input from '../Input'
+import GenderSelector from '../GenderSelector'
+import Usuario from '../../models/Usuario'
+import Avatar from '../../models/Avatar'
+import Button from '../Button'
+import ImageScroller from '../ImageScroller'
 
 class NovoUsuario extends React.Component {
     constructor(props) {
         super(props);
 
-        
         this.state = {
             usuario: new Usuario(),
             validacao: {
@@ -21,44 +21,42 @@ class NovoUsuario extends React.Component {
         };
     }
 
-    atualizarGenero(e, genero) {
+    atualizarNome(e) {
+        let usuario = this.state.usuario;
+        usuario.nome = e.target.value;        
+        this.setState({
+            usuario: usuario
+        });
+    }
+    atualizarGenero(e,genero) {
         e.preventDefault();
         let usuario = this.state.usuario;
         usuario.genero = genero;
+        usuario.avatar = Avatar.obterTodos()[0];
         this.setState({
             usuario: usuario
         });
     }
-
-    atualizarNome(e) {
-        let usuario = this.state.usuario;
-        usuario.nome = e.target.value;
-        this.setState({
-            usuario: usuario
-        });
-    }
-
     validar(e) {
         e.preventDefault();
         let usuario = this.state.usuario;
-        let validacao = this.state.validacao;
+
+        let validacao = this.state.validacao;        
         validacao.nomeInvalido = ! usuario.validarNome();
-        validacao.generoInvalido = ! usuario.validarGenero();
+        validacao.generoInvalido = ! usuario.validarGenero();        
 
-        let mensagem = '';
+        let mensagem = '';    
         let primeiraVisaoCompleta = false;
-
         if (validacao.nomeInvalido && validacao.generoInvalido) {
-            mensagem = 'Os campos nome e gênero estão inválidos!';
+            mensagem = 'Os campos nome e gênero estão inválidos!'
         } else if (validacao.nomeInvalido) {
-            mensagem = 'Seu nome está inválido!';
+            mensagem = 'Seu nome está inválido!'
         } else if (validacao.generoInvalido) {
-            mensagem = 'Selecione seu gênero!';
+            mensagem = 'Selecione seu gênero!'
         } else {
             primeiraVisaoCompleta = true;
         }
-
-        if (!primeiraVisaoCompleta) {
+        if (!primeiraVisaoCompleta) {            
             this.props.erro(mensagem);
         }
 
@@ -75,7 +73,7 @@ class NovoUsuario extends React.Component {
                     htmlFor="nome"
                     texto="Quem é você?"
                     valorInvalido={this.state.validacao.nomeInvalido}
-                />
+                />                    
                 <Input
                     id="nome"
                     placeholder="Digite seu nome"
@@ -86,19 +84,18 @@ class NovoUsuario extends React.Component {
                     onChange={this.atualizarNome.bind(this)}
                 />
             </section>
-        );
+        )
     }
 
     renderizarGenero() {
         if (this.state.primeiraVisaoCompleta) {
-            return null;
+            return null
         } else {
             return (
                 <section>
                     <Label
                         texto="Seu gênero:"
                         valorInvalido={this.state.validacao.generoInvalido}
-
                     />
                     <GenderSelector
                         valorInvalido={this.state.validacao.generoInvalido}
@@ -106,7 +103,34 @@ class NovoUsuario extends React.Component {
                         atualizarGenero={this.atualizarGenero.bind(this)}
                     />
                 </section>
-            );
+            )
+        }
+    }
+
+    renderizarAvatar() {
+        if (this.state.primeiraVisaoCompleta) {    
+            return (
+                <section>
+                    <Label
+                        texto="Escolha seu avatar:"
+                    />
+                    <ImageScroller
+                        arquivo="img/avatars.png"
+                        eixoY={(this.state.usuario.genero == 'm' ? 0 : 1)}
+                        elementos={Avatar.obterTodos()}
+                        selecionado={this.state.usuario.avatar}
+                        onChange={avatar => {                            
+                            let usuario = this.state.usuario;
+                            usuario.avatar = avatar;
+                            this.setState({                                
+                                usuario: usuario                                
+                            });
+                        }}
+                    />
+                </section>
+            )
+        } else {
+            return null            
         }
     }
 
@@ -118,19 +142,24 @@ class NovoUsuario extends React.Component {
                         texto="Voltar"
                         onClick={e => {
                             e.preventDefault();
+                            let usuario = this.state.usuario
+                            usuario.avatar = Avatar.obterTodos()[0];
                             this.setState({
+                                usuario: usuario,
                                 primeiraVisaoCompleta: false
-                            });  
-
+                            });
                         }}
                     />
                     <Button
                         principal
                         texto="Salvar"
+                        onClick={e => {
+                            e.preventDefault()
+                            this.props.onSubmit(this.state.usuario)
+                        }}
                     />
-
                 </section>
-            );
+            )
         } else {
             return (
                 <section>
@@ -140,7 +169,7 @@ class NovoUsuario extends React.Component {
                         onClick={this.validar.bind(this)}
                     />
                 </section>
-            );
+            )
         }
     }
 
@@ -150,7 +179,8 @@ class NovoUsuario extends React.Component {
                 <form className="pure-form pure-form-stacked">
                     {this.renderizarNome()}
                     {this.renderizarGenero()}
-                    {this.renderizarBotoes()}
+                    {this.renderizarAvatar()}
+                    {this.renderizarBotoes()}                    
                 </form>
             </div>
         );

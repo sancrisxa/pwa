@@ -1,4 +1,5 @@
 import React from 'react';
+import Usuario from '../models/Usuario';
 import Header from './Header';
 import NovoUsuario from './NovoUsuario';
 import Toast from './Toast';
@@ -9,6 +10,12 @@ class App extends React.Component {
             <div>
                 <Header />
                 <NovoUsuario 
+                    onSubmit={usuario => {
+                        let genero = usuario.genero == 'm' ? 'o' : 'a';
+                        this.refs.toast.sucesso(
+                            `Seja bem-vind${genero} ${usuario.nome}!`
+                        )
+                    }}
                     erro={msg => this.refs.toast.erro(msg)}
                 />
                 <Toast ref="toast" />
